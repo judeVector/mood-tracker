@@ -1,70 +1,97 @@
-#![allow(clippy::result_large_err)]
-
 use anchor_lang::prelude::*;
 
-declare_id!("AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ");
+declare_id!("7eBNuwi4ohvPFWbbb3E1HXhUedAENMLfE5KetRJ7QuLn");
 
 #[program]
-pub mod moodtracker {
+pub mod mood_tracker {
     use super::*;
 
-  pub fn close(_ctx: Context<CloseMoodtracker>) -> Result<()> {
-    Ok(())
-  }
+    pub fn create_mood(ctx: Context<CreateMood>, title: String, description: String) -> Result<()> {
+        let mood_entry = &mut ctx.accounts.mood;
 
-  pub fn decrement(ctx: Context<Update>) -> Result<()> {
-    ctx.accounts.moodtracker.count = ctx.accounts.moodtracker.count.checked_sub(1).unwrap();
-    Ok(())
-  }
+        mood_entry.title = title;
+        mood_entry.description = description;
+        mood_entry.owner = *ctx.accounts.signer.key;
 
-  pub fn increment(ctx: Context<Update>) -> Result<()> {
-    ctx.accounts.moodtracker.count = ctx.accounts.moodtracker.count.checked_add(1).unwrap();
-    Ok(())
-  }
+        // Automatically set the timestamp
+        mood_entry.timestamp = Clock::get()?.unix_timestamp;
 
-  pub fn initialize(_ctx: Context<InitializeMoodtracker>) -> Result<()> {
-    Ok(())
-  }
+        Ok(())
+    }
 
-  pub fn set(ctx: Context<Update>, value: u8) -> Result<()> {
-    ctx.accounts.moodtracker.count = value.clone();
-    Ok(())
-  }
+    pub fn update_mood(
+        ctx: Context<UpdateMood>,
+        _title: String,
+        description: String,
+    ) -> Result<()> {
+        let mood = &mut ctx.accounts.mood;
+        mood.description = description;
+
+        Ok(())
+    }
+
+    pub fn delete_mood(_ctx: Context<DeleteMood>, _title: String) -> Result<()> {
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
-pub struct InitializeMoodtracker<'info> {
-  #[account(mut)]
-  pub payer: Signer<'info>,
+#[instruction(title: String)]
+pub struct CreateMood<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
 
-  #[account(
-  init,
-  space = 8 + Moodtracker::INIT_SPACE,
-  payer = payer
-  )]
-  pub moodtracker: Account<'info, Moodtracker>,
-  pub system_program: Program<'info, System>,
-}
-#[derive(Accounts)]
-pub struct CloseMoodtracker<'info> {
-  #[account(mut)]
-  pub payer: Signer<'info>,
-
-  #[account(
-  mut,
-  close = payer, // close account and return lamports to payer
-  )]
-  pub moodtracker: Account<'info, Moodtracker>,
+    #[account(
+      init,
+      payer = signer,
+      space = 8 + Mood::INIT_SPACE,
+      seeds = [title.as_bytes(), signer.key().as_ref()],
+      bump
+    )]
+    pub mood: Account<'info, Mood>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct Update<'info> {
-  #[account(mut)]
-  pub moodtracker: Account<'info, Moodtracker>,
+#[instruction(title: String)]
+pub struct UpdateMood<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+    #[account(
+    mut,
+    realloc = 8 + Mood::INIT_SPACE,
+    realloc::payer = signer,
+    realloc::zero = true,
+    seeds = [title.as_bytes(), signer.key().as_ref()],
+    bump
+    )]
+    pub mood: Account<'info, Mood>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(title: String)]
+pub struct DeleteMood<'info> {
+    #[account(mut)]
+    pub signer: Signer<'info>,
+
+    #[account(
+        mut,
+        seeds = [title.as_bytes(), signer.key().as_ref()],
+        bump,
+        close = signer
+    )]
+    pub mood_entry: Account<'info, Mood>,
+    pub system_program: Program<'info, System>,
 }
 
 #[account]
 #[derive(InitSpace)]
-pub struct Moodtracker {
-  count: u8,
+pub struct Mood {
+    #[max_len(50)]
+    pub title: String,
+    #[max_len(50)]
+    pub description: String,
+    pub owner: Pubkey,
+    pub timestamp: i64,
 }
