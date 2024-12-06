@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-moodtracker = "AsjZ3kWAUSQRNt2pZVeJkywhZ6gpLpHZmJjduPmKZDZZ"
+moodtracker = "7eBNuwi4ohvPFWbbb3E1HXhUedAENMLfE5KetRJ7QuLn"
 
 [registry]
 url = "https://api.apr.dev"
