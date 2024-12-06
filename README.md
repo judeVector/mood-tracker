@@ -1,18 +1,33 @@
-# mood-tracker
+# MoodTracker
+
+## Overview
+
+MoodTracker is a decentralized application (dApp) that allows users to securely log, update, and manage their moods on-chain using the Solana blockchain. The application leverages the Anchor framework for Solana program development and Nextjs for the front-end interface.
+
+---
+
+![alt text](image.png)
+
+---
+
+![alt text](image-1.png)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node v18.18.0 or higher
+Ensure you have the following installed:
 
-- Rust v1.77.2 or higher
-- Anchor CLI 0.30.1 or higher
-- Solana CLI 1.18.17 or higher
+- **Node.js**: v18.18.0 or higher
+- **Rust**: v1.77.2 or higher
+- **Anchor CLI**: v0.30.1 or higher
+- **Solana CLI**: v1.18.17 or higher
+
+---
 
 ### Installation
 
-#### Clone the repo
+#### Clone the Repository
 
 ```shell
 git clone <repo-url>
