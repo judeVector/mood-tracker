@@ -6,11 +6,11 @@ MoodTracker is a decentralized application (dApp) that allows users to securely 
 
 ---
 
-![alt text](image.png)
+![alt text](public/image.png)
 
 ---
 
-![alt text](image-1.png)
+![alt text](public/image-1.png)
 
 ## Getting Started
 
